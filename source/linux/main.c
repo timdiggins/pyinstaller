@@ -29,6 +29,10 @@
 #include "getpath.h"
 #include <sys/wait.h>
 
+#ifdef __APPLE__
+#include "Processes.h"
+#endif
+
 #ifdef FREEZE_EXCEPTIONS
 extern unsigned char M_exceptions[];
 static struct _frozen _PyImport_FrozenModules[] = {
@@ -113,6 +117,14 @@ int main(int argc, char* argv[])
 
     if (workpath) {
         /* we're the "child" process */
+#ifdef __APPLE__
+        /* Switch the current process to be foreground (was background because
+           of the LSBackgroundOnly flag set by the Info.plist file created in
+           Build.py, which in turn is set to avoid a dock icon to appear for the
+           parent process whose purpose is unpacking the archive)*/
+        ProcessSerialNumber psn = { 0, kCurrentProcess };
+        OSStatus returnCode = TransformProcessType(&psn, kProcessTransformToForegroundApplication);
+#endif
         VS("Already have a workpath - running!\n");
         rc = doIt(argc, argv);
     }
@@ -147,4 +159,3 @@ int main(int argc, char* argv[])
     }
     return rc;
 }
-
