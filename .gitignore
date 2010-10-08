@@ -1,0 +1,9 @@
+/bincache00
+/config.dat
+.svn
+*.pyc
+*.pyo
+*.log
+*.tmproj
+*.o
+*~
