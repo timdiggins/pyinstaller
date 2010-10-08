@@ -177,8 +177,10 @@ def main():
 
     somevars['CFLAGS'] = string.join(cflags) # override
     if sys.platform.startswith("darwin"):
+        somevars['CFLAGS'] += " -I/Developer/Headers/FlatCarbon"
         somevars['LDFLAGS'] += " -F$(PYTHONFRAMEWORKPREFIX)"
         somevars['LDFLAGS'] += " -mmacosx-version-min=%s" % somevars["MACOSX_DEPLOYMENT_TARGET"]
+        somevars['LDFLAGS'] += " -framework Carbon"
         somevars['LINKFORSHARED'] = "" #override
     files = ['$(OPT)', '$(LDFLAGS)', '$(LINKFORSHARED)', 'getpath.c'] + \
             files + \
