@@ -27,7 +27,6 @@ import pprint
 import re
 import glob
 
-import platform
 import mf
 import bindepend
 import Build
@@ -36,14 +35,7 @@ HOME = os.path.dirname(sys.argv[0])
 
 iswin = sys.platform[:3] == 'win'
 is24 = hasattr(sys, "version_info") and sys.version_info[:2] >= (2,4)
-is26 = hasattr(sys, "version_info") and sys.version_info[:2] >= (2,6)
 cygwin = sys.platform == 'cygwin'
-
-if iswin and platform.architecture()[0] != "32bit":
-    print "ERROR: PyInstaller does not support Windows 64-bit"
-    print "Subscribe to this ticket for more information:"
-    print "    http://www.pyinstaller.org/ticket/25"
-    sys.exit(2)
 
 def find_EXE_dependencies(config):
     global target_platform, target_iswin
@@ -180,7 +172,7 @@ def test_RsrcUpdate(config):
         print 'I: ... resource update unavailable -', detail
         return
     
-    test_exe = os.path.join(HOME, 'support', 'loader', 'run_7rw.exe')
+    test_exe = os.path.join(HOME, 'support', 'loader', 'Windows-32bit', 'runw.exe')
     if not os.path.exists( test_exe ):
         config['hasRsrcUpdate'] = 0
         print 'E: ... resource update unavailable - %s not found' % test_exe

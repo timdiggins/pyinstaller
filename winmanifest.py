@@ -115,6 +115,14 @@ except ImportError, detail:
     print "W: unavailable. To enable resource access, please install "
     print "W: http://sourceforge.net/projects/pywin32/"
 
+try:
+    sys.getwindowsversion
+except AttributeError:
+    def getwindowsversion():
+        import win32api
+        return win32api.GetVersionEx(0)
+    sys.getwindowsversion = getwindowsversion
+
 silent = False  # True suppresses all messages
 
 LANGUAGE_NEUTRAL_NT5 = "x-ww"
@@ -124,7 +132,6 @@ RT_MANIFEST = 24
 Document.aChild = Document.appendChild
 Document.cE = Document.createElement
 Document.cT = Document.createTextNode
-Document.getEById = Document.getElementById
 Document.getEByTN = Document.getElementsByTagName
 Element.aChild = Element.appendChild
 Element.getA = Element.getAttribute
@@ -893,8 +900,11 @@ class Manifest(object):
         # version-encoding-standalone (standalone being optional), otherwise 
         # if it is embedded in an exe the exe will fail to launch! 
         # ('application configuration incorrect')
-        xmlstr = domtree.toprettyxml(
-            indent, newl, encoding).strip(os.linesep).replace(
+        if sys.version_info >= (2,3):
+            xmlstr = domtree.toprettyxml(indent, newl, encoding)
+        else:
+            xmlstr = domtree.toprettyxml(indent, newl)
+        xmlstr = xmlstr.strip(os.linesep).replace(
                 '<?xml version="1.0" encoding="%s"?>' % encoding, 
                 '<?xml version="1.0" encoding="%s" standalone="yes"?>' % 
                 encoding)
@@ -919,18 +929,22 @@ class Manifest(object):
         UpdateManifestResourcesFromXML(dstpath, self.toprettyxml(), names, 
                                        languages)
     
-    def writeprettyxml(self, filename_or_file, indent="  ", newl=os.linesep, 
+    def writeprettyxml(self, filename_or_file=None, indent="  ", newl=os.linesep, 
                        encoding="UTF-8"):
         """ Write the manifest as XML to a file or file object """
+        if not filename_or_file:
+            filename_or_file = self.filename
         if isinstance(filename_or_file, (str, unicode)):
             filename_or_file = open(filename_or_file, "wb")
         xmlstr = self.toprettyxml(indent, newl, encoding)
         filename_or_file.write(xmlstr)
         filename_or_file.close()
     
-    def writexml(self, filename_or_file, indent="  ", newl=os.linesep, 
+    def writexml(self, filename_or_file=None, indent="  ", newl=os.linesep, 
                  encoding="UTF-8"):
         """ Write the manifest as XML to a file or file object """
+        if not filename_or_file:
+            filename_or_file = self.filename
         if isinstance(filename_or_file, (str, unicode)):
             filename_or_file = open(filename_or_file, "wb")
         xmlstr = self.toxml(indent, newl, encoding)
